@@ -1,4 +1,4 @@
-package gp.world;
+package gp.world.texture;
 
 import javax.media.opengl.GL2;
 

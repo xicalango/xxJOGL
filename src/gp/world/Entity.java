@@ -2,6 +2,7 @@ package gp.world;
 
 import gp.morphing.MorphFactory;
 import gp.morphing.Morphers;
+import gp.world.texture.TextureProvider;
 
 import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
@@ -135,6 +136,12 @@ public abstract class Entity implements Renderable, Updateable, Initializable {
 
 	public void setAlpha(float alpha) {
 		this.alpha = alpha;
+	}
+	
+	public void setXYZ(float x, float y, float z) {
+		setX(x);
+		setY(y);
+		setZ(z);
 	}
 
 	public void setX(float x) {

@@ -1,4 +1,4 @@
-package gp.world;
+package gp.world.texture;
 
 import java.io.File;
 import java.io.IOException;
@@ -47,38 +47,7 @@ public class DefaultTextureStore implements TextureStore {
 		this.currentTexture = currentTexture;
 	}
 	
-	public Texture putFromFile(String file, String key) {
-		try {
-			Texture tex = TextureIO.newTexture(new File(file), false);
-			putTexture(key, tex);
-			
-			return tex;
-			
-		} catch (GLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		return null;
-	}
 
-	public Texture putFromFile(String file) {
-		return putFromFile(file, file);
-	}
-
-	@Override
-	public Texture[] putFromFile(String... files) {
-		Texture[] texts = new Texture[files.length];
-		
-		int i = 0;
-		
-		for(String file : files) {
-			texts[i++] = putFromFile(file);
-		}
-		
-		return texts;
-	}
 
 
 }
