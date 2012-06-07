@@ -7,6 +7,7 @@ import gp.world.camera.DefaultCamera;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,63 +16,18 @@ import javax.media.opengl.glu.GLU;
 
 import com.jogamp.opengl.util.gl2.GLUT;
 
-public class World implements Renderable, Updateable, Iterable<Entity>, KeyListener, Margins {
+public class World implements Renderable, Updateable, Iterable<Entity>, KeyListener, Initializable {
 
 	private Camera camera;
-	private Perspective perspective = new CentralPerspective();
-	
-	public Perspective getPerspective() {
-		return perspective;
-	}
-
-	public void setPerspective(Perspective perspective) {
-		this.perspective = perspective;
-	}
-
 	private List<Entity> entities = new ArrayList<Entity>();
-	
-	private float marginX1 = -1f;
-	private float marginY1 = -1f;
-	private float marginX2 = 1f;
-	private float marginY2 = 1f;
-	
-	public float getMarginX1() {
-		return marginX1;
-	}
 
-	public void setMarginX1(float marginX1) {
-		this.marginX1 = marginX1;
-	}
-
-	public float getMarginY1() {
-		return marginY1;
-	}
-
-	public void setMarginY1(float marginY1) {
-		this.marginY1 = marginY1;
-	}
-
-	public float getMarginX2() {
-		return marginX2;
-	}
-
-	public void setMarginX2(float marginX2) {
-		this.marginX2 = marginX2;
-	}
-
-	public float getMarginY2() {
-		return marginY2;
-	}
-
-	public void setMarginY2(float marginY2) {
-		this.marginY2 = marginY2;
-	}
+	private TextureStore textureStore = new DefaultTextureStore();
 
 	public World() {
 		this(new DefaultCamera());
 	}
 
-	public World(DefaultCamera camera) {
+	public World(Camera camera) {
 		this.camera = camera;
 	}
 
@@ -81,9 +37,11 @@ public class World implements Renderable, Updateable, Iterable<Entity>, KeyListe
 
 	public void setCamera(Camera camera) {
 		this.camera = camera;
+		camera.init();
 	}
 	
 	public boolean add(Entity arg0) {
+		arg0.setTextureStore(textureStore);
 		return entities.add(arg0);
 	}
 
@@ -91,7 +49,15 @@ public class World implements Renderable, Updateable, Iterable<Entity>, KeyListe
 		return entities.get(arg0);
 	}
 
-	public boolean remove(Object arg0) {
+	public boolean addAll(Collection<? extends Entity> c) {
+		for(Entity e : c) {
+			e.setTextureStore(textureStore);
+		}
+		return entities.addAll(c);
+	}
+
+	public boolean remove(Entity arg0) {
+		arg0.setTextureStore(null);
 		return entities.remove(arg0);
 	}
 
@@ -100,25 +66,19 @@ public class World implements Renderable, Updateable, Iterable<Entity>, KeyListe
 		
 		//camera.prepare(gl, glu, glut);
 		
-		//preRendering(gl, glu, glut);
-		
-		gl.glLoadIdentity();
-		
-		camera.prepare(gl, glu, glut);
-		
-		setupWorld( gl, glu, glut);
 		
 		for(Renderable r : this) {
-			gl.glPushMatrix();
+			
+			gl.glLoadIdentity();
+			
+			camera.prepare(gl, glu, glut);
+			
+			setupWorld( gl, glu, glut);
 
 			r.render(gl, glu, glut);
-			
-			gl.glPopMatrix();
 		}
 	}
 	
-	//protected void preRendering(GL2 gl, GLU glu, GLUT glut) { }
-
 	@Override
 	public void update() {
 		for(Updateable u : this) {
@@ -133,10 +93,17 @@ public class World implements Renderable, Updateable, Iterable<Entity>, KeyListe
 		return entities.iterator();
 	}
 
-	public void init() {
+	public void init(GL2 gl, GLU glu, GLUT glut) {
+		initializeTextureStore(gl,glu,glut,textureStore);
+		
 		camera.init();
 		
+		for(Entity e : entities) {
+			e.init(gl, glu, glut);
+		}
 	}
+
+	protected void initializeTextureStore(GL2 gl, GLU glu, GLUT glut, TextureStore store) {}
 
 	@Override
 	public void keyPressed(KeyEvent e) {}
@@ -147,18 +114,6 @@ public class World implements Renderable, Updateable, Iterable<Entity>, KeyListe
 	@Override
 	public void keyTyped(KeyEvent e) {}
 
-	@Override
-	public void setMargins(float x1, float y1, float x2, float y2) {
-		this.marginX1 = x1;
-		this.marginY1 = y1;
-		this.marginX2 = x2;
-		this.marginY2 = y2;
-	}
 
-	public void setupPerspective(GL2 gl, GLU glu, int width, int height) {
-		if(perspective != null) {
-			perspective.setupPerspective(gl, glu, width, height);
-		}
-	}
 	
 }

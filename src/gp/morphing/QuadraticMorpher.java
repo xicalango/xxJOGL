@@ -1,7 +1,14 @@
 package gp.morphing;
 
 public class QuadraticMorpher implements Morpher {
-
+	
+	public static class Factory implements MorphFactory {
+		@Override
+		public Morpher getMorpher(float[][] points) {
+			return new QuadraticMorpher( points[0][0], points[0][1], points[0][2] );
+		}
+	}
+	
 	private float xm;
 	private float ym;
 	private float zm;

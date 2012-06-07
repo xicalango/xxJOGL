@@ -1,10 +1,10 @@
 package gp.gui;
 
 import gp.world.World;
-import gp.world.camera.Camera;
 
 import java.awt.event.KeyEvent;
 
+import javax.media.opengl.GL;
 import javax.media.opengl.GL2;
 import javax.media.opengl.GLAutoDrawable;
 import javax.media.opengl.GLCapabilities;
@@ -28,7 +28,12 @@ public class WinRenderer extends GLCanvas implements GLEventListener, java.awt.e
 
 	@Override
 	public void init(GLAutoDrawable drawable) {
-		world.init();
+		
+		final GL2 gl = drawable.getGL().getGL2();
+		final GLU glu = new GLU();
+		final GLUT glut = new GLUT();
+		
+		world.init(gl,glu,glut);
 		
 		addKeyListener(world);
 //		addKeyListener(this);
@@ -49,13 +54,21 @@ public class WinRenderer extends GLCanvas implements GLEventListener, java.awt.e
 		final GLU glu = new GLU();
 		final GLUT glut = new GLUT();
 		
-		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
-		//gl.glEnable(GL2.GL_DEPTH_TEST);
+		initGL(gl,glu,glut);
+		
 		gl.glLoadIdentity();
 
 		world.render(gl, glu, glut);
 
 		gl.glFlush();
+		gl.glDisable(GL.GL_TEXTURE_2D);
+	}
+
+	private void initGL(final GL2 gl, GLU glu, GLUT glut) {
+		gl.glClear(GL2.GL_COLOR_BUFFER_BIT | GL2.GL_DEPTH_BUFFER_BIT);
+		gl.glEnable(GL2.GL_DEPTH_TEST);
+		gl.glEnable(GL.GL_TEXTURE_2D);
+		gl.glTexEnvf(GL2.GL_TEXTURE_ENV, GL2.GL_TEXTURE_ENV_MODE, GL2.GL_DECAL);
 	}
 
 	@Override
@@ -71,10 +84,7 @@ public class WinRenderer extends GLCanvas implements GLEventListener, java.awt.e
 		// Projektionsmwtrix initialisieren
 		gl.glLoadIdentity();
 		// Zentralprojektion waehlen
-		
-		world.setupPerspective(gl, glu, width, height);
-		
-		//glu.gluPerspective(90, (float) width / (float) height, 1, 100);
+		glu.gluPerspective(90, (float) width / (float) height, 1, 100);
 		//gl.glOrthof(-1, 1, -1, 1, -1, 1);
 		// und wieder auf Modellmatrix zuruecksetzen
 		gl.glMatrixMode(GL2.GL_MODELVIEW);
